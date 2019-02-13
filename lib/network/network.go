@@ -1,8 +1,10 @@
 package network
 
 import (
+	"fmt"
 	"math"
 	"math/rand"
+	"time"
 )
 
 type Network struct {
@@ -12,8 +14,7 @@ type Network struct {
 	layer       [][]float64
 	ArrayOutput []float64
 
-	weightsInput  [][]float64
-	weightsOutput [][]float64
+	weights [][]float64
 
 	changeInput  [][]float64
 	changeOutput [][]float64
@@ -27,6 +28,7 @@ func (n *Network) dsigmoid(y float64) float64 {
 	return 1.0 - math.Pow(y, 2.0)
 }
 
+/*
 func (n *Network) Update(sensor [2]interface{}) {
 	for i := 0; i < n.numInput-1; i++ {
 		n.arrayInput[i] = float64(sensor[i].(float32))
@@ -48,86 +50,38 @@ func (n *Network) Update(sensor [2]interface{}) {
 		n.ArrayOutput[k] = n.sigmoid(sum)
 	}
 }
+*/
 
-func (n *Network) BackPropagation(targets []float64) float64 {
-	N := 0.5
-	M := 0.1
-
-	outputDeltas := make([]float64, n.numOutput)
-	// Calculate error terms for output
-	for k := 0; k < n.numOutput; k++ {
-		error := targets[k] - n.ArrayOutput[k]
-		outputDeltas[k] = n.dsigmoid(n.ArrayOutput[k]) * error
-	}
-
-	hiddenDeltas := make([]float64, n.numHidden)
-	// Calculate error terms for hidden
-	for j := 0; j < n.numHidden; j++ {
-		error := 0.0
-		for k := 0; k < n.numOutput; k++ {
-			error += outputDeltas[k] * n.weightsOutput[j][k]
-			hiddenDeltas[j] = n.dsigmoid(n.arrayHidden[j]) * error
-		}
-	}
-
-	// Update output weights
-	for j := 0; j < n.numHidden; j++ {
-		n.changeOutput[j] = make([]float64, n.numOutput)
-		for k := 0; k < n.numOutput; k++ {
-			change := outputDeltas[k] * n.arrayHidden[j]
-			n.weightsOutput[j][k] = n.weightsOutput[j][k] + N*change + M*n.changeOutput[j][k]
-			n.changeOutput[j][k] = change
-		}
-	}
-
-	// Update input weights
-	for i := 0; i < n.numInput; i++ {
-		n.changeInput[i] = make([]float64, n.numHidden)
-		for j := 0; j < n.numHidden; j++ {
-			change := hiddenDeltas[j] * n.arrayInput[i]
-			n.weightsInput[i][j] = n.weightsInput[i][j] + N*change + M*n.changeInput[i][j]
-			n.changeInput[i][j] = change
-		}
-	}
-
-	// Calculate error
-	error := 0.0
-	for k := 0; k < len(targets); k++ {
-		error += 0.5 * math.Pow((targets[k]-n.ArrayOutput[k]), 2)
-	}
-	return error
-}
-
-func (n *Network) generateRandomWeights() {
+func (n *Network) generateRandomWeights(layerNumber int) {
 	min := -100.0
 	max := 100.0
-	for i := 0; i < n.numInput; i++ {
-		n.weightsInput[i] = make([]float64, n.numHidden)
-		for j := 0; j < n.numHidden; j++ {
-			n.weightsInput[i][j] = min + rand.Float64()*(max-(min))
-		}
-	}
 
-	for j := 0; j < n.numHidden; j++ {
-		n.weightsOutput[j] = make([]float64, n.numOutput)
-		for k := 0; k < n.numOutput; k++ {
-			n.weightsOutput[j][k] = min + rand.Float64()*(max-(min))
+	// For each layer
+	for i := 0; i < layerNumber-1; i++ {
+		fmt.Print(n.layer[i])
+		// For each node in the current layer
+		for j := 0; j < len(n.layer[i])-1; j++ {
+			n.weights[j] = make([]float64, len(n.layer[i]))
+			// For each node in the next layer
+			for k := 0; k < len(n.layer[i+1]); k++ {
+				n.weights[j][k] = min + rand.Float64()*(max-(min))
+			}
 		}
 	}
+	fmt.Print("Weights: ")
+	fmt.Print(n.weights)
 
 	// Add another layer for biais
-	for index := range n.weightsInput[len(n.weightsInput)-1] {
-		n.weightsInput[len(n.weightsInput)-1][index] = -1.0
-	}
+	//for i := 0; i < len(n.weights[0][len(n.weights[0])-1]); i++ {
+	//	n.weights[0][len(n.weights[0])-1][i] = -1.0
+	//}
 }
 
-func (n *Network) generateHiddenLayer() {
-	layerNumberMin := 1
-	layerNumberMax := 10
+func (n *Network) generateHiddenLayer(layerNumber int) {
 	NodeNumberMin := 3
 	NodeNumberMax := 10
-	for i := 0; i < rand.Intn(layerNumberMax-layerNumberMin)+layerNumberMin; i++ {
-		n.layer = append(n.layer, make([]float64, rand.Intn(NodeNumberMax-NodeNumberMin)+NodeNumberMin))
+	for i := 1; i < layerNumber-1; i++ {
+		n.layer[i] = make([]float64, rand.Intn(NodeNumberMax-NodeNumberMin)+NodeNumberMin)
 	}
 }
 
@@ -136,17 +90,24 @@ func (n *Network) Init(numInput, numHidden, numOutput int) {
 	n.numHidden = numHidden
 	n.numOutput = numOutput
 
-	n.layer = append(n.layer, make([]float64, n.numInput))
-	n.generateHiddenLayer()
-	n.layer = append(n.layer, make([]float64, n.numOutput))
+	layerNumberMin := 3
+	layerNumberMax := 13
+	layerNumber := rand.Intn(layerNumberMax-layerNumberMin) + layerNumberMin
+	n.layer = make([][]float64, layerNumber)
+
+	n.layer[0] = make([]float64, n.numInput)
+	n.layer[len(n.layer)-1] = make([]float64, n.numOutput)
+
+	n.generateHiddenLayer(layerNumber)
+	fmt.Print("Layer: ")
+	//fmt.Print(n.layer)
 
 	n.ArrayOutput = make([]float64, n.numOutput)
-
-	n.weightsInput = make([][]float64, n.numInput)
-	n.weightsOutput = make([][]float64, n.numHidden)
 
 	n.changeInput = make([][]float64, n.numInput)
 	n.changeOutput = make([][]float64, n.numHidden)
 
-	n.generateRandomWeights()
+	n.weights = make([][]float64, layerNumber-1)
+	n.generateRandomWeights(layerNumber)
+	time.Sleep(2000 * time.Millisecond)
 }

@@ -1,8 +1,8 @@
 package cell
 
 import (
-	"game_of_life_with_NN/lib/grid"
-	"game_of_life_with_NN/lib/network"
+	"github.com/Ethik-69/NeuralNetworkGo/lib/grid"
+	"github.com/Ethik-69/NeuralNetworkGo/lib/network"
 	"math/rand"
 	"time"
 )
@@ -125,7 +125,7 @@ func (c *Cell) move() {
 func (c *Cell) Update() {
 	c.NumUpdate++
 	c.detection()
-	c.Brain.Update(c.Sensor)
+	//c.Brain.Update(c.Sensor)
 
 	targets := []float64{0.5, 0.5, 0.5, 0.5}
 
@@ -148,7 +148,7 @@ func (c *Cell) Update() {
 	}
 
 	c.ErrorLevel = 0.0
-	c.ErrorLevel = c.Brain.BackPropagation(targets)
+	//c.ErrorLevel = c.Brain.BackPropagation(targets)
 
 	c.grid.Grid[c.X][c.Y] = 0
 	c.move()

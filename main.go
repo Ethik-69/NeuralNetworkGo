@@ -1,8 +1,8 @@
 package main
 
 import (
-	"game_of_life_with_NN/lib/cell"
-	"game_of_life_with_NN/lib/grid"
+	"github.com/Ethik-69/NeuralNetworkGo/lib/cell"
+	"github.com/Ethik-69/NeuralNetworkGo/lib/grid"
 	"sort"
 	"time"
 )
