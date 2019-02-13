@@ -10,8 +10,6 @@ type Network struct {
 	numHidden   int
 	numOutput   int
 	layer       [][]float64
-	arrayInput  []float64
-	arrayHidden []float64
 	ArrayOutput []float64
 
 	weightsInput  [][]float64
@@ -124,7 +122,13 @@ func (n *Network) generateRandomWeights() {
 }
 
 func (n *Network) generateHiddenLayer() {
-
+	layerNumberMin := 1
+	layerNumberMax := 10
+	NodeNumberMin := 3
+	NodeNumberMax := 10
+	for i := 0; i < rand.Intn(layerNumberMax-layerNumberMin)+layerNumberMin; i++ {
+		n.layer = append(n.layer, make([]float64, rand.Intn(NodeNumberMax-NodeNumberMin)+NodeNumberMin))
+	}
 }
 
 func (n *Network) Init(numInput, numHidden, numOutput int) {
@@ -132,8 +136,10 @@ func (n *Network) Init(numInput, numHidden, numOutput int) {
 	n.numHidden = numHidden
 	n.numOutput = numOutput
 
-	n.arrayInput = make([]float64, n.numInput)
-	n.arrayHidden = make([]float64, n.numHidden)
+	n.layer = append(n.layer, make([]float64, n.numInput))
+	n.generateHiddenLayer()
+	n.layer = append(n.layer, make([]float64, n.numOutput))
+
 	n.ArrayOutput = make([]float64, n.numOutput)
 
 	n.weightsInput = make([][]float64, n.numInput)
