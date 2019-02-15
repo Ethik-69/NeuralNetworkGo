@@ -125,7 +125,7 @@ func (c *Cell) move() {
 func (c *Cell) Update() {
 	c.NumUpdate++
 	c.detection()
-	//c.Brain.Update(c.Sensor)
+	c.Brain.Update(c.Sensor)
 
 	targets := []float64{0.5, 0.5, 0.5, 0.5}
 
