@@ -32,24 +32,16 @@ func (n *Network) Update(sensor [2]interface{}) {
 		n.layer[0][i] = float64(sensor[i].(float32))
 	}
 
-	fmt.Println(n.layer)
-	fmt.Println("--------------------")
-	fmt.Println(n.weights)
-	fmt.Println("--------------------")
 	for l := 1; l < len(n.layer); l++ {
-		fmt.Printf("[*] current layer number: %d------------\n", l)
 		// Loop over the current
 		for j := 0; j < len(n.layer[l]); j++ {
-			fmt.Printf("[*] current layer node: %d-----\n", j)
 			sum := 0.0
 			// Loop over the previous layer
 			for i := 0; i < len(n.layer[l-1]); i++ {
-				fmt.Printf("[*] previous layer node: %d\n", i)
 				sum += n.layer[l-1][i] * n.weights[l-1][i][j]
 			}
 			n.layer[l][j] = n.sigmoid(sum)
 		}
-
 	}
 }
 
